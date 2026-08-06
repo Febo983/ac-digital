@@ -1,3 +1,4 @@
+<meta charset="utf-8">
 <title>A&amp;C_Digital — sistemas de gestión hechos a medida</title>
 <style>
 :root{
@@ -165,20 +166,22 @@ dl.cmds dd{margin:0;color:var(--text)}
 hr.rule{border:none;border-top:1px dashed var(--border);margin:0}
 .contact-block{border:1px solid var(--border);background:var(--surface);padding:2rem}
 .egg-msg{color:var(--text-dim);font-size:.85rem;margin:0 0 .25rem}
-.dino-scene{position:relative;height:72px;margin-top:1.25rem;overflow:hidden}
+.egg-hint{color:var(--text-dim);font-size:.75rem;margin:0 0 .25rem}
+.dino-scene{position:relative;height:72px;margin-top:1rem;overflow:hidden;outline:none}
+.dino-scene:focus-visible{box-shadow:0 0 0 2px var(--info)}
+.dino-score{position:absolute;top:0;right:0;font-size:.72rem;color:var(--text-dim);letter-spacing:.05em}
 .dino-ground{position:absolute;left:0;right:0;bottom:6px;border-top:2px dashed var(--border)}
 .dino-svg{position:absolute;left:8px;bottom:6px;color:var(--accent)}
+.dino-over{position:absolute;left:8px;right:0;bottom:32px;font-size:.78rem;color:var(--info)}
 .f1{opacity:1}
 .f2{opacity:0}
-.cacti{position:absolute;bottom:6px;left:0;display:flex;align-items:flex-end;gap:90px;color:var(--accent-dim);transform:translateX(220px)}
+.cacti{position:absolute;bottom:6px;left:0;display:flex;align-items:flex-end;gap:24px;color:var(--accent-dim)}
 @media (prefers-reduced-motion:no-preference){
   .f1{animation:legpose1 .3s steps(1) infinite}
   .f2{animation:legpose2 .3s steps(1) infinite}
-  .cacti{animation:runleft 5s linear infinite;transform:none}
 }
 @keyframes legpose1{0%,49%{opacity:1}50%,100%{opacity:0}}
 @keyframes legpose2{0%,49%{opacity:0}50%,100%{opacity:1}}
-@keyframes runleft{from{transform:translateX(760px)}to{transform:translateX(-220px)}}
 footer{
   padding:2.5rem 0 3rem;
   color:var(--text-dim);
@@ -353,13 +356,15 @@ footer{
 <section class="egg">
   <p class="prompt"><b>C:\A&amp;C_DIGITAL&gt;</b> ping internet.com</p>
   <p class="egg-msg">Tiempo de espera agotado. Reintentando<span class="cursor" aria-hidden="true"></span></p>
-  <div class="dino-scene" aria-hidden="true">
+  <p class="egg-hint">Espacio, flecha arriba o clic para saltar</p>
+  <div class="dino-scene" id="dinoScene" tabindex="0" role="application" aria-label="Mini juego del dinosaurio: espacio para saltar">
+    <div class="dino-score" aria-hidden="true"><span id="dinoHi">HI 000</span> <span id="dinoCur">000</span></div>
     <div class="dino-ground"></div>
-    <div class="cacti">
+    <div class="cacti" id="dinoCacti" aria-hidden="true">
       <svg class="cactus" viewBox="0 0 10 18" width="16" height="28"><g fill="currentColor"><rect x="4" y="0" width="2" height="18"></rect><rect x="0" y="6" width="4" height="2"></rect><rect x="6" y="10" width="4" height="2"></rect></g></svg>
       <svg class="cactus" viewBox="0 0 10 18" width="12" height="20"><g fill="currentColor"><rect x="4" y="0" width="2" height="18"></rect><rect x="1" y="8" width="3" height="2"></rect></g></svg>
     </div>
-    <svg class="dino-svg" viewBox="0 0 34 26" width="64" height="49">
+    <svg class="dino-svg" id="dinoSvg" viewBox="0 0 34 26" width="64" height="49" aria-hidden="true">
       <g fill="currentColor">
         <rect x="2" y="8" width="24" height="10"></rect>
         <rect x="20" y="2" width="10" height="8"></rect>
@@ -371,6 +376,7 @@ footer{
         <rect class="f2" x="18" y="18" width="4" height="6"></rect>
       </g>
     </svg>
+    <div class="dino-over" id="dinoOver" hidden aria-hidden="true">GAME OVER — espacio para reintentar</div>
   </div>
 </section>
 
@@ -397,5 +403,98 @@ footer{
       }, 16);
     }, i * 420);
   });
+})();
+
+(function(){
+  var scene = document.getElementById('dinoScene');
+  if (!scene) return;
+  var dino = document.getElementById('dinoSvg');
+  var cacti = document.getElementById('dinoCacti');
+  var curEl = document.getElementById('dinoCur');
+  var hiEl = document.getElementById('dinoHi');
+  var overEl = document.getElementById('dinoOver');
+
+  function pad(n){
+    n = Math.max(0, Math.floor(n));
+    var s = String(n);
+    while (s.length < 3) s = '0' + s;
+    return s;
+  }
+
+  var gravity = 0.85, jumpV = -13.5;
+  var dinoLeft = 8, dinoWidth = 24, clearHeight = 14;
+  var cactiWidth = 40;
+  var dinoY = 0, vy = 0, jumping = false;
+  var cactusX = 0, speed = 2.6;
+  var score = 0, over = false, running = false;
+  var hi = parseInt(localStorage.getItem('ac_digital_dino_hi') || '0', 10) || 0;
+  hiEl.textContent = 'HI ' + pad(hi);
+
+  function reset(){
+    cactusX = scene.clientWidth + 40;
+    dinoY = 0; vy = 0; jumping = false;
+    score = 0; over = false;
+    overEl.hidden = true;
+    curEl.textContent = pad(0);
+    dino.style.transform = 'translateY(0)';
+    cacti.style.transform = 'translateX(' + cactusX + 'px)';
+  }
+  reset();
+
+  function jump(){
+    if (over){ reset(); running = true; return; }
+    if (!jumping){ jumping = true; vy = jumpV; }
+    running = true;
+  }
+
+  scene.addEventListener('keydown', function(e){
+    if (e.code === 'Space' || e.key === ' ' || e.key === 'ArrowUp' || e.code === 'ArrowUp'){
+      e.preventDefault();
+      jump();
+    }
+  });
+  scene.addEventListener('click', jump);
+  scene.addEventListener('touchstart', function(e){ e.preventDefault(); jump(); }, {passive:false});
+
+  var last = null;
+  function frame(ts){
+    if (last === null) last = ts;
+    var dt = Math.min(32, ts - last);
+    last = ts;
+
+    if (running && !over){
+      var step = dt / 16;
+      cactusX -= speed * step;
+      if (cactusX < -cactiWidth) cactusX = scene.clientWidth + 40;
+      cacti.style.transform = 'translateX(' + cactusX + 'px)';
+
+      if (jumping){
+        vy += gravity * step;
+        dinoY += vy * step;
+        if (dinoY >= 0){ dinoY = 0; vy = 0; jumping = false; }
+        dino.style.transform = 'translateY(' + dinoY + 'px)';
+      }
+
+      score += dt / 90;
+      curEl.textContent = pad(score);
+
+      var cactusLeft = cactusX + 10;
+      var cactusRight = cactusX + cactiWidth - 14;
+      var overlapX = cactusLeft < dinoLeft + dinoWidth && cactusRight > dinoLeft;
+      if (overlapX && dinoY > -clearHeight){
+        over = true;
+        running = false;
+        var finalScore = Math.floor(score);
+        if (finalScore > hi){
+          hi = finalScore;
+          localStorage.setItem('ac_digital_dino_hi', hi);
+          hiEl.textContent = 'HI ' + pad(hi);
+        }
+        overEl.hidden = false;
+      }
+    }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
 })();
 </script>
