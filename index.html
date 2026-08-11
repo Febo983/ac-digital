@@ -65,13 +65,15 @@ body::before{
 }
 section{padding:3.5rem 0}
 .hero{padding-top:3rem}
-.boot{font-size:.82rem;color:var(--text-dim);min-height:6.5em}
+.boot{font-size:.82rem;color:var(--text-dim);min-height:6.5em;position:relative;z-index:1}
 .boot-line{visibility:visible;white-space:pre-wrap;word-break:break-word}
 .boot-line b{color:var(--accent);font-weight:400}
 .hero-main{
   margin-top:1.75rem;
   opacity:1;
   transform:none;
+  position:relative;
+  z-index:1;
 }
 @media (prefers-reduced-motion:no-preference){
   .hero-main{animation:reveal .5s ease-out 2.1s both}
@@ -109,7 +111,8 @@ h1{
 .crt-bar{display:flex;align-items:center;gap:.6rem;padding:.55rem .9rem;border-bottom:1px solid var(--border);background:var(--surface-2)}
 .crt-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0}
 .crt-label{font-size:.7rem;color:var(--text-dim);letter-spacing:.06em}
-.crt-screen{padding:2rem 1.75rem 2.25rem}
+.crt-screen{padding:2rem 1.75rem 2.25rem;position:relative;overflow:hidden}
+.net-canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
 .avatar{
   width:4.5em;height:4.5em;
   display:block;
@@ -270,6 +273,14 @@ footer{
 }
 </style>
 
+<script type="importmap">
+{
+  "imports": {
+    "three": "./vendor/three.module.js"
+  }
+}
+</script>
+
 <div class="titlebar">
   <span>C:\A&amp;C_DIGITAL\SITIO.EXE</span>
   <button class="sound-toggle" id="soundToggle" type="button" aria-pressed="false" title="Activar sonido de teclado">♪<span class="sr-only"> Sonido de teclado</span></button>
@@ -285,6 +296,7 @@ footer{
       <span class="crt-label">MONITOR — A&amp;C_DIGITAL</span>
     </div>
     <div class="crt-screen">
+      <canvas id="netCanvas" class="net-canvas" aria-hidden="true"></canvas>
       <div class="boot" aria-hidden="true">
         <div class="boot-line">C:\Usuarios\Visitante&gt; A&amp;C_DIGITAL.EXE</div>
         <div class="boot-line">Iniciando sistema...</div>
@@ -802,5 +814,223 @@ var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-moti
     requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);
+})();
+</script>
+
+<script type="module">
+import * as THREE from "three";
+
+(function () {
+  var canvas = document.getElementById("netCanvas");
+  if (!canvas || !window.WebGLRenderingContext) return;
+
+  var reduceMotion = !window.matchMedia("(prefers-reduced-motion: no-preference)").matches;
+
+  var styles = getComputedStyle(document.documentElement);
+  var accentColor = new THREE.Color(styles.getPropertyValue("--accent").trim() || "#43e881");
+  var infoColor = new THREE.Color(styles.getPropertyValue("--info").trim() || "#5fc2ea");
+
+  var renderer;
+  try {
+    renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
+  } catch (e) {
+    return;
+  }
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+
+  var scene = new THREE.Scene();
+  var camera = new THREE.PerspectiveCamera(50, 1, 0.1, 100);
+  camera.position.set(0, 0, 9);
+
+  var group = new THREE.Group();
+  scene.add(group);
+
+  // ── textura de resplandor para los nodos (gradiente radial en canvas) ──
+  function glowTexture(color) {
+    var size = 128;
+    var c = document.createElement("canvas");
+    c.width = c.height = size;
+    var ctx = c.getContext("2d");
+    var g = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
+    var hex = "#" + color.getHexString();
+    g.addColorStop(0, hex);
+    g.addColorStop(0.35, hex);
+    g.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, size, size);
+    var tex = new THREE.CanvasTexture(c);
+    tex.needsUpdate = true;
+    return tex;
+  }
+
+  var accentGlow = glowTexture(accentColor);
+  var infoGlow = glowTexture(infoColor);
+
+  function labelSprite(text) {
+    var c = document.createElement("canvas");
+    var ctx = c.getContext("2d");
+    var font = "600 40px Consolas, 'Cascadia Mono', 'Courier New', monospace";
+    var pad = 22;
+    ctx.font = font;
+    var w = Math.ceil(ctx.measureText(text).width) + pad * 2;
+    var h = 64;
+    c.width = w;
+    c.height = h;
+    ctx = c.getContext("2d");
+    // chip de fondo (como los badges del sitio) para que quede legible
+    // encima de cualquier cosa que haya detras — texto, otros nodos, etc.
+    ctx.fillStyle = "rgba(6,9,7,0.82)";
+    ctx.strokeStyle = "rgba(67,232,129,0.5)";
+    ctx.lineWidth = 2;
+    ctx.fillRect(1, 1, w - 2, h - 2);
+    ctx.strokeRect(1, 1, w - 2, h - 2);
+    ctx.font = font;
+    ctx.fillStyle = "rgba(205,235,210,0.95)";
+    ctx.textBaseline = "middle";
+    ctx.fillText(text, pad, h / 2);
+    var tex = new THREE.CanvasTexture(c);
+    tex.needsUpdate = true;
+    var mat = new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false });
+    var sprite = new THREE.Sprite(mat);
+    sprite.scale.set((w / h) * 0.55, 0.55, 1);
+    return sprite;
+  }
+
+  // ── generar nodos ──
+  var isNarrow = window.innerWidth < 620;
+  var count = isNarrow ? 26 : 46;
+  var hubLabels = ["DASHBOARDS", "AUTOMATIZACIÓN", "AUDITORÍA"];
+  var nodes = [];
+  var i;
+  for (i = 0; i < count - hubLabels.length; i++) {
+    var pos = new THREE.Vector3(
+      (Math.random() - 0.5) * 11,
+      (Math.random() - 0.5) * 5.5,
+      (Math.random() - 0.5) * 5 - 1
+    );
+    nodes.push({ pos: pos, phase: Math.random() * Math.PI * 2 });
+  }
+
+  // los nodos con etiqueta de texto van pegados a los bordes izq/der, cada
+  // uno en su propia franja vertical, para no pisar el texto del hero ni
+  // superponerse entre si
+  var hubZones = [
+    { side: -1, y: 2.85 },
+    { side: 1, y: 0 },
+    { side: -1, y: -2.6 },
+  ];
+  var hubIdx = [];
+  for (i = 0; i < hubLabels.length; i++) {
+    var zone = hubZones[i % hubZones.length];
+    var hubPos = new THREE.Vector3(
+      zone.side * (4.6 + Math.random() * 0.9),
+      zone.y + (Math.random() - 0.5) * 0.35,
+      (Math.random() - 0.5) * 5 - 1
+    );
+    hubIdx.push(nodes.length);
+    nodes.push({ pos: hubPos, phase: Math.random() * Math.PI * 2 });
+  }
+
+  var nodeSprites = [];
+  for (i = 0; i < nodes.length; i++) {
+    var isHub = hubIdx.indexOf(i) !== -1;
+    var mat = new THREE.SpriteMaterial({
+      map: isHub ? infoGlow : accentGlow,
+      transparent: true,
+      opacity: isHub ? 0.95 : 0.55,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+    });
+    var sprite = new THREE.Sprite(mat);
+    var scale = isHub ? 0.85 : 0.42 + Math.random() * 0.2;
+    sprite.scale.set(scale, scale, 1);
+    sprite.position.copy(nodes[i].pos);
+    group.add(sprite);
+    nodeSprites.push(sprite);
+
+    if (isHub) {
+      var label = labelSprite(hubLabels[hubIdx.indexOf(i)]);
+      label.position.set(nodes[i].pos.x, nodes[i].pos.y - 0.55, nodes[i].pos.z);
+      group.add(label);
+    }
+  }
+
+  // ── conectar nodos cercanos ──
+  var maxDist = 3.1;
+  var maxPerNode = 3;
+  var linePositions = [];
+  for (i = 0; i < nodes.length; i++) {
+    var dists = [];
+    for (var j = 0; j < nodes.length; j++) {
+      if (i === j) continue;
+      var d = nodes[i].pos.distanceTo(nodes[j].pos);
+      if (d < maxDist) dists.push({ j: j, d: d });
+    }
+    dists.sort(function (a, b) { return a.d - b.d; });
+    for (var k = 0; k < Math.min(maxPerNode, dists.length); k++) {
+      if (dists[k].j > i) {
+        linePositions.push(nodes[i].pos.x, nodes[i].pos.y, nodes[i].pos.z);
+        linePositions.push(nodes[dists[k].j].pos.x, nodes[dists[k].j].pos.y, nodes[dists[k].j].pos.z);
+      }
+    }
+  }
+  var lineGeo = new THREE.BufferGeometry();
+  lineGeo.setAttribute("position", new THREE.Float32BufferAttribute(linePositions, 3));
+  var lineMat = new THREE.LineBasicMaterial({
+    color: accentColor,
+    transparent: true,
+    opacity: 0.16,
+    blending: THREE.AdditiveBlending,
+  });
+  var lines = new THREE.LineSegments(lineGeo, lineMat);
+  group.add(lines);
+
+  var clock = new THREE.Clock();
+
+  function render(elapsed) {
+    group.rotation.y = elapsed * 0.035;
+    group.rotation.x = Math.sin(elapsed * 0.08) * 0.05;
+    for (i = 0; i < nodeSprites.length; i++) {
+      var s = nodeSprites[i];
+      var pulse = 0.85 + Math.sin(elapsed * 0.6 + nodes[i].phase) * 0.15;
+      s.material.opacity = (hubIdx.indexOf(i) !== -1 ? 0.95 : 0.55) * pulse;
+    }
+    renderer.render(scene, camera);
+  }
+
+  function resize(w, h) {
+    // clientWidth/Height puede leerse mal en el primer tick (layout todavia
+    // no asentado) — ResizeObserver nos vuelve a avisar con el tamano real
+    // apenas esta disponible, asi que ignoramos lecturas absurdas.
+    if (!(w > 40) || !(h > 40) || w / h > 8 || h / w > 8) return;
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+    // setSize limpia el buffer del canvas — si prefers-reduced-motion esta
+    // activo (macOS: Accesibilidad > Pantalla > Reducir movimiento) el loop
+    // de rAF nunca arranca, asi que sin este render el canvas quedaba en
+    // blanco despues del primer resize real (bug real, reproducido igual en
+    // Chrome y Safari porque es un ajuste de sistema, no del navegador).
+    render(reduceMotion ? 0 : clock.getElapsedTime());
+  }
+  resize(canvas.parentElement.clientWidth, canvas.parentElement.clientHeight);
+  if (window.ResizeObserver) {
+    new ResizeObserver(function (entries) {
+      var box = entries[0].contentRect;
+      resize(box.width, box.height);
+    }).observe(canvas.parentElement);
+  } else {
+    window.addEventListener("resize", function () {
+      resize(canvas.parentElement.clientWidth, canvas.parentElement.clientHeight);
+    });
+  }
+
+  if (reduceMotion) return;
+
+  function loop() {
+    render(clock.getElapsedTime());
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
 })();
 </script>
