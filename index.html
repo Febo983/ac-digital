@@ -627,7 +627,11 @@ var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-moti
     return s;
   }
 
-  var GRAVITY_BASE = 0.95, JUMP_V_BASE = -11.5, REF_HEIGHT = 130;
+  // Antes (0.95 / -11.5) el salto duraba 24 frames en el aire, pero el
+  // obstaculo de 3 cactus (56px) tarda ~28 frames en cruzar el hitbox del
+  // dino a velocidad inicial — imposible de despegar sin importar el timing.
+  // Bajamos la gravedad para alargar el aire a ~33 frames (altura similar).
+  var GRAVITY_BASE = 0.49, JUMP_V_BASE = -8.2, REF_HEIGHT = 130;
   var uiScale = 1, gravity = GRAVITY_BASE, jumpV = JUMP_V_BASE;
   function updateScale(){
     uiScale = scene.clientHeight / REF_HEIGHT;
