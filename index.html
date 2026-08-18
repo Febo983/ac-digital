@@ -972,10 +972,9 @@ import * as THREE from "three";
   // ── generar nodos ──
   var isNarrow = window.innerWidth < 620;
   var count = isNarrow ? 26 : 46;
-  var hubLabels = ["DASHBOARDS", "AUTOMATIZACIÓN", "AUDITORÍA"];
   var nodes = [];
   var i;
-  for (i = 0; i < count - hubLabels.length; i++) {
+  for (i = 0; i < count; i++) {
     var pos = new THREE.Vector3(
       (Math.random() - 0.5) * 11,
       (Math.random() - 0.5) * 5.5,
@@ -984,49 +983,58 @@ import * as THREE from "three";
     nodes.push({ pos: pos, phase: Math.random() * Math.PI * 2 });
   }
 
-  // los nodos con etiqueta de texto van todos del lado derecho: el texto
-  // del hero (boot lines, parrafo) arranca pegado al margen izquierdo, asi
-  // que la izquierda siempre tiene alta chance de pisarlo. La derecha, en
-  // cambio, queda libre porque las lineas no siempre llegan hasta el borde.
+  var nodeSprites = [];
+  for (i = 0; i < nodes.length; i++) {
+    var mat = new THREE.SpriteMaterial({
+      map: accentGlow,
+      transparent: true,
+      opacity: 0.55,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+    });
+    var sprite = new THREE.Sprite(mat);
+    var scale = 0.42 + Math.random() * 0.2;
+    sprite.scale.set(scale, scale, 1);
+    sprite.position.copy(nodes[i].pos);
+    group.add(sprite);
+    nodeSprites.push(sprite);
+  }
+
+  // ── etiquetas de servicios: el texto del hero (boot lines, parrafo)
+  // ocupa casi todo el ancho, asi que estas viven en un grupo aparte que
+  // NUNCA rota con el resto de la constelacion — solo flotan verticalmente,
+  // pegadas al borde derecho, para no terminar cruzando sobre el texto.
+  var hubLabels = ["DASHBOARDS", "AUTOMATIZACIÓN", "AUDITORÍA"];
   var hubZones = [
     { y: 3.1 },
     { y: 0.3 },
     { y: -2.5 },
   ];
-  var hubIdx = [];
+  var hubGroup = new THREE.Group();
+  scene.add(hubGroup);
+  var hubUnits = [];
   for (i = 0; i < hubLabels.length; i++) {
     var zone = hubZones[i % hubZones.length];
-    var hubPos = new THREE.Vector3(
-      4.7 + Math.random() * 0.7,
-      zone.y + (Math.random() - 0.5) * 0.3,
-      (Math.random() - 0.5) * 3
-    );
-    hubIdx.push(nodes.length);
-    nodes.push({ pos: hubPos, phase: Math.random() * Math.PI * 2 });
-  }
+    var unit = new THREE.Group();
+    unit.position.set(5.0 + Math.random() * 0.3, zone.y, 0);
+    hubGroup.add(unit);
 
-  var nodeSprites = [];
-  for (i = 0; i < nodes.length; i++) {
-    var isHub = hubIdx.indexOf(i) !== -1;
-    var mat = new THREE.SpriteMaterial({
-      map: isHub ? infoGlow : accentGlow,
+    var hMat = new THREE.SpriteMaterial({
+      map: infoGlow,
       transparent: true,
-      opacity: isHub ? 0.95 : 0.55,
+      opacity: 0.95,
       depthWrite: false,
       blending: THREE.AdditiveBlending,
     });
-    var sprite = new THREE.Sprite(mat);
-    var scale = isHub ? 0.85 : 0.42 + Math.random() * 0.2;
-    sprite.scale.set(scale, scale, 1);
-    sprite.position.copy(nodes[i].pos);
-    group.add(sprite);
-    nodeSprites.push(sprite);
+    var hSprite = new THREE.Sprite(hMat);
+    hSprite.scale.set(0.85, 0.85, 1);
+    unit.add(hSprite);
 
-    if (isHub) {
-      var label = labelSprite(hubLabels[hubIdx.indexOf(i)]);
-      label.position.set(nodes[i].pos.x, nodes[i].pos.y - 0.55, nodes[i].pos.z);
-      group.add(label);
-    }
+    var label = labelSprite(hubLabels[i]);
+    label.position.set(0, -0.55, 0);
+    unit.add(label);
+
+    hubUnits.push({ unit: unit, sprite: hSprite, phase: Math.random() * Math.PI * 2, baseY: zone.y });
   }
 
   // ── conectar nodos cercanos ──
@@ -1067,7 +1075,13 @@ import * as THREE from "three";
     for (i = 0; i < nodeSprites.length; i++) {
       var s = nodeSprites[i];
       var pulse = 0.85 + Math.sin(elapsed * 0.6 + nodes[i].phase) * 0.15;
-      s.material.opacity = (hubIdx.indexOf(i) !== -1 ? 0.95 : 0.55) * pulse;
+      s.material.opacity = 0.55 * pulse;
+    }
+    for (i = 0; i < hubUnits.length; i++) {
+      var hu = hubUnits[i];
+      var hpulse = 0.85 + Math.sin(elapsed * 0.6 + hu.phase) * 0.15;
+      hu.sprite.material.opacity = 0.95 * hpulse;
+      hu.unit.position.y = hu.baseY + Math.sin(elapsed * 0.25 + hu.phase) * 0.18;
     }
     renderer.render(scene, camera);
   }
