@@ -312,15 +312,13 @@ footer{
   .founder{padding:1.25rem 1rem}
 }
 
-/* ── acordeón (servicios / casos / proceso) ── */
-.acc-section{padding-top:1rem;padding-bottom:1rem}
-.acc-head{display:flex;align-items:center;gap:.75rem;cursor:pointer;user-select:none;margin-bottom:1rem}
-.acc-head .prompt{margin:0}
-.acc-caret{color:var(--text-dim);font-size:.8rem;transition:transform .18s ease;flex-shrink:0}
-.acc-head:hover .acc-caret,.acc-head:focus-visible .acc-caret{color:var(--accent)}
-.acc.open .acc-caret{transform:rotate(90deg);color:var(--accent)}
-.acc-head:focus-visible{outline:2px solid var(--info);outline-offset:4px}
-.acc-body{max-height:0;overflow:hidden;transition:max-height .3s ease}
+/* ── reveal Matrix (servicios/casos/proceso/contacto/precios) ── */
+.matrix-trigger{padding:1.25rem 0}
+.matrix-stage{position:relative;overflow:hidden;height:0;transition:height .3s ease}
+.matrix-canvas{position:absolute;inset:0;width:100%;height:100%;display:block;opacity:0;transition:opacity .15s;pointer-events:none}
+.matrix-canvas.show{opacity:1}
+.matrix-content{opacity:0;transition:opacity .3s}
+.matrix-content.show{opacity:1}
 
 /* ── PRECIOS (gateado) ── */
 .pricing-gate{border:1px solid var(--border);background:var(--surface);padding:1.75rem;max-width:380px}
@@ -434,118 +432,105 @@ table.pricing td.num{color:var(--accent);white-space:nowrap}
 
 <hr class="rule">
 
-<section class="acc-section">
-  <div class="acc open" id="acc-servicios">
-    <div class="acc-head">
-      <p class="prompt"><b>C:\A&amp;C_DIGITAL&gt;</b> <span class="cmd">servicios</span></p>
-      <span class="acc-caret" aria-hidden="true">▸</span>
+<div class="matrix-trigger">
+  <button type="button" class="btn" id="matrixBtn">$ descifrar_info &gt;_</button>
+</div>
+
+<div class="matrix-stage" id="matrixStage1">
+<canvas class="matrix-canvas" id="matrixCanvas1" aria-hidden="true"></canvas>
+<div class="matrix-content" id="matrixContent1">
+
+<section>
+  <p class="prompt"><b>C:\A&amp;C_DIGITAL&gt;</b> <span class="cmd">servicios</span></p>
+  <dl class="cmds">
+    <div>
+      <dt>DASHBOARDS</dt>
+      <dd>Paneles de gestión a medida, con los datos reales de la operación — no una plantilla con casilleros vacíos.</dd>
     </div>
-    <div class="acc-body">
-      <dl class="cmds">
-        <div>
-          <dt>DASHBOARDS</dt>
-          <dd>Paneles de gestión a medida, con los datos reales de la operación — no una plantilla con casilleros vacíos.</dd>
-        </div>
-        <div>
-          <dt>LIQUIDACIONES</dt>
-          <dd>Cálculo y distribución automática de honorarios, comisiones o pagos, con las reglas exactas de cada operación.</dd>
-        </div>
-        <div>
-          <dt>PORTALES</dt>
-          <dd>Accesos web para profesionales, clientes o socios, sin depender de planillas compartidas por chat.</dd>
-        </div>
-        <div>
-          <dt>AUDITORIA</dt>
-          <dd>Relevamiento de los procesos actuales, para identificar dónde se pierde tiempo, dinero o información.</dd>
-        </div>
-        <div>
-          <dt>AUTOMATIZACION</dt>
-          <dd>Bots e integraciones entre planillas, bancos y sistemas, para eliminar la carga manual de datos.</dd>
-        </div>
-      </dl>
+    <div>
+      <dt>LIQUIDACIONES</dt>
+      <dd>Cálculo y distribución automática de honorarios, comisiones o pagos, con las reglas exactas de cada operación.</dd>
     </div>
-  </div>
+    <div>
+      <dt>PORTALES</dt>
+      <dd>Accesos web para profesionales, clientes o socios, sin depender de planillas compartidas por chat.</dd>
+    </div>
+    <div>
+      <dt>AUDITORIA</dt>
+      <dd>Relevamiento de los procesos actuales, para identificar dónde se pierde tiempo, dinero o información.</dd>
+    </div>
+    <div>
+      <dt>AUTOMATIZACION</dt>
+      <dd>Bots e integraciones entre planillas, bancos y sistemas, para eliminar la carga manual de datos.</dd>
+    </div>
+  </dl>
 </section>
 
 <hr class="rule">
 
-<section class="acc-section">
-  <div class="acc" id="acc-casos">
-    <div class="acc-head">
-      <p class="prompt"><b>C:\A&amp;C_DIGITAL&gt;</b> <span class="cmd">casos.log</span></p>
-      <span class="acc-caret" aria-hidden="true">▸</span>
+<section>
+  <p class="prompt"><b>C:\A&amp;C_DIGITAL&gt;</b> <span class="cmd">casos.log</span></p>
+  <p class="section-intro">Algunos registros de trabajos reales — sin nombres, por confidencialidad de los clientes.</p>
+
+  <div class="logs-grid">
+  <div class="log">
+    <div class="log-head">
+      <svg class="log-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 8v8M8 12h8"></path></svg>
+      <span>[LOG 001] CLÍNICA DE TRAUMATOLOGÍA — MAR DEL PLATA</span>
     </div>
-    <div class="acc-body">
-      <p class="section-intro">Algunos registros de trabajos reales — sin nombres, por confidencialidad de los clientes.</p>
-
-      <div class="logs-grid">
-      <div class="log">
-        <div class="log-head">
-          <svg class="log-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 8v8M8 12h8"></path></svg>
-          <span>[LOG 001] CLÍNICA DE TRAUMATOLOGÍA — MAR DEL PLATA</span>
-        </div>
-        <div class="log-row"><span class="log-label">PROBLEMA</span><span class="log-val">Liquidación mensual de honorarios entre diez profesionales, calculada a mano cada mes con alto margen de error.</span></div>
-        <div class="log-row"><span class="log-label">SOLUCION</span><span class="log-val">Sistema de cálculo automático + panel de gestión + dashboard contable, conectados a los datos reales de la clínica.</span></div>
-        <div class="log-row"><span class="log-label">RESULTADO</span><span class="log-val">Cero errores de reparto y horas ahorradas cada mes de cierre.</span></div>
-      </div>
-
-      <div class="log">
-        <div class="log-head">
-          <svg class="log-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="5" y="4" width="14" height="17"></rect><path d="M9 9h1M14 9h1M9 13h1M14 13h1M9 21v-4h6v4"></path></svg>
-          <span>[LOG 002] POLICONSULTORIO EN APERTURA — SIERRA DE LOS PADRES</span>
-        </div>
-        <div class="log-row"><span class="log-label">PROBLEMA</span><span class="log-val">Un centro médico nuevo, coordinando especialidades, habilitación y marketing sin un lugar central donde verlo todo.</span></div>
-        <div class="log-row"><span class="log-label">SOLUCION</span><span class="log-val">Dashboard de gestión integral, accesible desde cualquier dispositivo, actualizado en el momento.</span></div>
-        <div class="log-row"><span class="log-label">RESULTADO</span><span class="log-val">Todo el proyecto de apertura en un solo lugar, en vez de repartido en chats y notas sueltas.</span></div>
-      </div>
-
-      <div class="log">
-        <div class="log-head">
-          <svg class="log-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4 11l8-6 8 6"></path><path d="M6 10v10h12V10"></path></svg>
-          <span>[LOG 003] INMOBILIARIA BOUTIQUE</span>
-        </div>
-        <div class="log-row"><span class="log-label">PROBLEMA</span><span class="log-val">Armar un catálogo de propiedades para un cliente llevaba horas de copiar y pegar de aviso en aviso.</span></div>
-        <div class="log-row"><span class="log-label">SOLUCION</span><span class="log-val">Herramienta que junta los avisos con un clic y genera el catálogo en Excel, con el formato exacto que usa la inmobiliaria.</span></div>
-        <div class="log-row"><span class="log-label">RESULTADO</span><span class="log-val">Minutos en vez de horas por catálogo enviado.</span></div>
-      </div>
-      </div>
-
-      <p class="prompt" style="margin-top:2rem"><b>C:\A&amp;C_DIGITAL&gt;</b> <span class="cmd">consultar</span></p>
-      <p class="section-intro" style="margin-bottom:1.25rem">¿Alguna de estas situaciones es similar? Cuéntenos el caso y evaluamos si se puede resolver de la misma manera.</p>
-      <ul class="menu">
-        <li><a class="btn" href="https://wa.me/5493413622332?text=Hola%2C%20vi%20la%20p%C3%A1gina%20de%20A%26C_Digital%2C%20le%C3%AD%20los%20casos%20y%20tengo%20una%20situaci%C3%B3n%20similar.">[1] WHATSAPP</a></li>
-      </ul>
-    </div>
+    <div class="log-row"><span class="log-label">PROBLEMA</span><span class="log-val">Liquidación mensual de honorarios entre diez profesionales, calculada a mano cada mes con alto margen de error.</span></div>
+    <div class="log-row"><span class="log-label">SOLUCION</span><span class="log-val">Sistema de cálculo automático + panel de gestión + dashboard contable, conectados a los datos reales de la clínica.</span></div>
+    <div class="log-row"><span class="log-label">RESULTADO</span><span class="log-val">Cero errores de reparto y horas ahorradas cada mes de cierre.</span></div>
   </div>
+
+  <div class="log">
+    <div class="log-head">
+      <svg class="log-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="5" y="4" width="14" height="17"></rect><path d="M9 9h1M14 9h1M9 13h1M14 13h1M9 21v-4h6v4"></path></svg>
+      <span>[LOG 002] POLICONSULTORIO EN APERTURA — SIERRA DE LOS PADRES</span>
+    </div>
+    <div class="log-row"><span class="log-label">PROBLEMA</span><span class="log-val">Un centro médico nuevo, coordinando especialidades, habilitación y marketing sin un lugar central donde verlo todo.</span></div>
+    <div class="log-row"><span class="log-label">SOLUCION</span><span class="log-val">Dashboard de gestión integral, accesible desde cualquier dispositivo, actualizado en el momento.</span></div>
+    <div class="log-row"><span class="log-label">RESULTADO</span><span class="log-val">Todo el proyecto de apertura en un solo lugar, en vez de repartido en chats y notas sueltas.</span></div>
+  </div>
+
+  <div class="log">
+    <div class="log-head">
+      <svg class="log-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4 11l8-6 8 6"></path><path d="M6 10v10h12V10"></path></svg>
+      <span>[LOG 003] INMOBILIARIA BOUTIQUE</span>
+    </div>
+    <div class="log-row"><span class="log-label">PROBLEMA</span><span class="log-val">Armar un catálogo de propiedades para un cliente llevaba horas de copiar y pegar de aviso en aviso.</span></div>
+    <div class="log-row"><span class="log-label">SOLUCION</span><span class="log-val">Herramienta que junta los avisos con un clic y genera el catálogo en Excel, con el formato exacto que usa la inmobiliaria.</span></div>
+    <div class="log-row"><span class="log-label">RESULTADO</span><span class="log-val">Minutos en vez de horas por catálogo enviado.</span></div>
+  </div>
+  </div>
+
+  <p class="prompt" style="margin-top:2rem"><b>C:\A&amp;C_DIGITAL&gt;</b> <span class="cmd">consultar</span></p>
+  <p class="section-intro" style="margin-bottom:1.25rem">¿Alguna de estas situaciones es similar? Cuéntenos el caso y evaluamos si se puede resolver de la misma manera.</p>
+  <ul class="menu">
+    <li><a class="btn" href="https://wa.me/5493413622332?text=Hola%2C%20vi%20la%20p%C3%A1gina%20de%20A%26C_Digital%2C%20le%C3%AD%20los%20casos%20y%20tengo%20una%20situaci%C3%B3n%20similar.">[1] WHATSAPP</a></li>
+  </ul>
 </section>
 
 <hr class="rule">
 
-<section class="acc-section">
-  <div class="acc" id="acc-proceso">
-    <div class="acc-head">
-      <p class="prompt"><b>C:\A&amp;C_DIGITAL&gt;</b> <span class="cmd">ver proceso</span></p>
-      <span class="acc-caret" aria-hidden="true">▸</span>
+<section>
+  <p class="prompt"><b>C:\A&amp;C_DIGITAL&gt;</b> <span class="cmd">ver proceso</span></p>
+  <div class="steps">
+    <div class="step">
+      <span class="step-n">01</span>
+      <div><p class="step-title">Relevamiento</p><p class="step-body">Analizamos cómo funciona la operación actual, sin asumir nada de antemano.</p></div>
     </div>
-    <div class="acc-body">
-      <div class="steps">
-        <div class="step">
-          <span class="step-n">01</span>
-          <div><p class="step-title">Relevamiento</p><p class="step-body">Analizamos cómo funciona la operación actual, sin asumir nada de antemano.</p></div>
-        </div>
-        <div class="step">
-          <span class="step-n">02</span>
-          <div><p class="step-title">Diseño</p><p class="step-body">Diseñamos el sistema a medida de la operación real, no de un caso genérico.</p></div>
-        </div>
-        <div class="step">
-          <span class="step-n">03</span>
-          <div><p class="step-title">Implementación</p><p class="step-body">Lo construimos y lo probamos con datos reales, no con datos de ejemplo.</p></div>
-        </div>
-        <div class="step">
-          <span class="step-n">04</span>
-          <div><p class="step-title">Acompañamiento</p><p class="step-body">Seguimos ajustando el sistema a medida que el negocio evoluciona.</p></div>
-        </div>
-      </div>
+    <div class="step">
+      <span class="step-n">02</span>
+      <div><p class="step-title">Diseño</p><p class="step-body">Diseñamos el sistema a medida de la operación real, no de un caso genérico.</p></div>
+    </div>
+    <div class="step">
+      <span class="step-n">03</span>
+      <div><p class="step-title">Implementación</p><p class="step-body">Lo construimos y lo probamos con datos reales, no con datos de ejemplo.</p></div>
+    </div>
+    <div class="step">
+      <span class="step-n">04</span>
+      <div><p class="step-title">Acompañamiento</p><p class="step-body">Seguimos ajustando el sistema a medida que el negocio evoluciona.</p></div>
     </div>
   </div>
 </section>
@@ -562,6 +547,9 @@ table.pricing td.num{color:var(--accent);white-space:nowrap}
     </ul>
   </div>
 </section>
+
+</div>
+</div>
 
 <hr class="rule">
 
@@ -613,6 +601,10 @@ table.pricing td.num{color:var(--accent);white-space:nowrap}
 </section>
 
 <hr class="rule">
+
+<div class="matrix-stage" id="matrixStage2">
+<canvas class="matrix-canvas" id="matrixCanvas2" aria-hidden="true"></canvas>
+<div class="matrix-content" id="matrixContent2">
 
 <section id="precios">
   <p class="prompt"><b>C:\A&amp;C_DIGITAL&gt;</b> <span class="cmd">precios --acceso</span></p>
@@ -708,6 +700,9 @@ table.pricing td.num{color:var(--accent);white-space:nowrap}
     </ul>
   </div>
 </section>
+
+</div>
+</div>
 
 </main>
 
@@ -1060,41 +1055,76 @@ var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-moti
 })();
 
 (function(){
-  var heads = document.querySelectorAll('.acc-head');
-  heads.forEach(function(head){
-    var acc = head.closest('.acc');
-    var body = head.nextElementSibling;
-    head.setAttribute('role', 'button');
-    head.setAttribute('tabindex', '0');
-    head.setAttribute('aria-expanded', acc.classList.contains('open') ? 'true' : 'false');
-    if (acc.classList.contains('open')) body.style.maxHeight = 'none';
+  var btn = document.getElementById('matrixBtn');
+  if (!btn) return;
+  var regions = [
+    { stage: document.getElementById('matrixStage1'), canvas: document.getElementById('matrixCanvas1'), content: document.getElementById('matrixContent1') },
+    { stage: document.getElementById('matrixStage2'), canvas: document.getElementById('matrixCanvas2'), content: document.getElementById('matrixContent2') }
+  ];
+  var isOpen = false;
+  var rainChars = 'アイウエオカキクケコサシスセソ0123456789#&%$';
 
-    function toggle(){
-      var isOpen = acc.classList.contains('open');
-      if (isOpen){
-        body.style.maxHeight = body.scrollHeight + 'px';
-        requestAnimationFrame(function(){ body.style.maxHeight = '0px'; });
-        acc.classList.remove('open');
-        head.setAttribute('aria-expanded', 'false');
+  function playRain(r, durationMs, onDone){
+    var w = r.stage.clientWidth;
+    var h = r.content.scrollHeight;
+    if (!w || !h || reduceMotion){ onDone(); return; }
+    r.canvas.width = w; r.canvas.height = h;
+    r.canvas.classList.add('show');
+    var ctx = r.canvas.getContext('2d');
+    var fontSize = 14;
+    var cols = Math.max(1, Math.floor(w / fontSize));
+    var drops = new Array(cols).fill(0);
+    var start = Date.now();
+    var lastTick = 0;
+    function frame(){
+      ctx.fillStyle = 'rgba(6,9,7,0.22)';
+      ctx.fillRect(0, 0, w, h);
+      ctx.fillStyle = '#43e881';
+      ctx.font = fontSize + 'px monospace';
+      for (var i = 0; i < drops.length; i++){
+        var ch = rainChars[Math.floor(Math.random() * rainChars.length)];
+        ctx.fillText(ch, i * fontSize, drops[i] * fontSize);
+        if (drops[i] * fontSize > h && Math.random() > 0.975) drops[i] = 0;
+        drops[i]++;
+      }
+      var elapsed = Date.now() - start;
+      if (elapsed - lastTick > 180){ playTick(); lastTick = elapsed; }
+      if (elapsed < durationMs){
+        requestAnimationFrame(frame);
       } else {
-        acc.classList.add('open');
-        head.setAttribute('aria-expanded', 'true');
-        body.style.maxHeight = body.scrollHeight + 'px';
-        body.addEventListener('transitionend', function onEnd(e){
-          if (e.propertyName !== 'max-height') return;
-          if (acc.classList.contains('open')) body.style.maxHeight = 'none';
-          body.removeEventListener('transitionend', onEnd);
-        });
+        r.canvas.classList.remove('show');
+        onDone();
       }
     }
+    requestAnimationFrame(frame);
+  }
 
-    head.addEventListener('click', toggle);
-    head.addEventListener('keydown', function(e){
-      if (e.key === 'Enter' || e.key === ' '){
-        e.preventDefault();
-        toggle();
-      }
+  function openRegion(r){
+    if (!r.stage) return;
+    r.stage.style.height = r.content.scrollHeight + 'px';
+    playRain(r, 650, function(){
+      r.content.classList.add('show');
+      r.stage.style.height = 'auto';
     });
+  }
+
+  function closeRegion(r){
+    if (!r.stage) return;
+    r.stage.style.height = r.content.scrollHeight + 'px';
+    requestAnimationFrame(function(){ r.stage.style.height = '0px'; });
+    r.content.classList.remove('show');
+  }
+
+  btn.addEventListener('click', function(){
+    if (isOpen){
+      regions.forEach(closeRegion);
+      isOpen = false;
+      btn.textContent = '$ descifrar_info >_';
+    } else {
+      isOpen = true;
+      btn.textContent = '$ ocultar_info >_';
+      regions.forEach(function(r){ openRegion(r); });
+    }
   });
 })();
 
