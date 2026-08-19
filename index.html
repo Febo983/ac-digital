@@ -988,7 +988,7 @@ import * as THREE from "three";
     var mat = new THREE.SpriteMaterial({
       map: accentGlow,
       transparent: true,
-      opacity: 0.55,
+      opacity: 0.24,
       depthWrite: false,
       blending: THREE.AdditiveBlending,
     });
@@ -1022,7 +1022,7 @@ import * as THREE from "three";
     var hMat = new THREE.SpriteMaterial({
       map: infoGlow,
       transparent: true,
-      opacity: 0.95,
+      opacity: 0.45,
       depthWrite: false,
       blending: THREE.AdditiveBlending,
     });
@@ -1061,7 +1061,7 @@ import * as THREE from "three";
   var lineMat = new THREE.LineBasicMaterial({
     color: accentColor,
     transparent: true,
-    opacity: 0.16,
+    opacity: 0.07,
     blending: THREE.AdditiveBlending,
   });
   var lines = new THREE.LineSegments(lineGeo, lineMat);
@@ -1070,18 +1070,18 @@ import * as THREE from "three";
   var clock = new THREE.Clock();
 
   function render(elapsed) {
-    group.rotation.y = elapsed * 0.035;
-    group.rotation.x = Math.sin(elapsed * 0.08) * 0.05;
+    group.rotation.y = elapsed * 0.02;
+    group.rotation.x = Math.sin(elapsed * 0.08) * 0.03;
     for (i = 0; i < nodeSprites.length; i++) {
       var s = nodeSprites[i];
       var pulse = 0.85 + Math.sin(elapsed * 0.6 + nodes[i].phase) * 0.15;
-      s.material.opacity = 0.55 * pulse;
+      s.material.opacity = 0.24 * pulse;
     }
     for (i = 0; i < hubUnits.length; i++) {
       var hu = hubUnits[i];
       var hpulse = 0.85 + Math.sin(elapsed * 0.6 + hu.phase) * 0.15;
-      hu.sprite.material.opacity = 0.95 * hpulse;
-      hu.unit.position.y = hu.baseY + Math.sin(elapsed * 0.25 + hu.phase) * 0.18;
+      hu.sprite.material.opacity = 0.45 * hpulse;
+      hu.unit.position.y = hu.baseY + Math.sin(elapsed * 0.25 + hu.phase) * 0.12;
     }
     renderer.render(scene, camera);
   }
