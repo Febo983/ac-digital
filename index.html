@@ -311,6 +311,49 @@ footer{
   .log{padding:1.25rem 1.25rem 1.5rem;margin-bottom:1rem}
   .founder{padding:1.25rem 1rem}
 }
+
+/* ── PRECIOS (gateado) ── */
+.pricing-gate{border:1px solid var(--border);background:var(--surface);padding:1.75rem;max-width:380px}
+.pricing-gate-label{display:block;font-size:.72rem;color:var(--text-dim);letter-spacing:.05em;margin-bottom:.4rem}
+.pricing-gate-input{
+  width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);
+  font-family:inherit;font-size:.95rem;padding:.6em .8em;margin-bottom:.9rem;
+}
+.pricing-gate-input:focus{outline:none;border-color:var(--accent)}
+.pricing-gate-error{color:#e88b6f;font-size:.8rem;margin-top:.75rem;display:none}
+.pricing-gate-error.show{display:block}
+#pricingContent{display:none}
+table.pricing{width:100%;border-collapse:collapse;margin-bottom:.5rem;font-size:.88rem}
+table.pricing th{
+  text-align:left;color:var(--text-dim);font-weight:400;font-size:.72rem;
+  letter-spacing:.05em;text-transform:uppercase;
+  border-bottom:1px solid var(--border);padding:0 .75rem .6rem 0;
+}
+table.pricing td{border-bottom:1px solid var(--border);padding:.85rem .75rem .85rem 0;vertical-align:top}
+table.pricing tr:last-child td{border-bottom:none}
+table.pricing td.item{color:var(--text)}
+table.pricing td.item small{display:block;color:var(--text-dim);font-size:.76rem;margin-top:.2rem}
+table.pricing td.num{color:var(--accent);white-space:nowrap}
+.pricing-wrap{overflow-x:auto;margin-bottom:2rem}
+.plans{display:grid;gap:1.25rem;margin-bottom:2rem}
+@media (min-width:860px){
+  .plans{grid-template-columns:repeat(3,1fr)}
+}
+.plan{border:1px solid var(--border);background:var(--surface);padding:1.5rem}
+.plan.plan-pro{border-color:var(--accent-dim)}
+.plan-name{color:var(--accent);font-size:.95rem;margin:0 0 .3rem}
+.plan-price{font-size:1.4rem;color:var(--text);margin:0 0 1rem}
+.plan-price small{font-size:.65rem;color:var(--text-dim);font-weight:400}
+.plan-list{list-style:none;margin:0;padding:0;font-size:.82rem;color:var(--text)}
+.plan-list li{padding:.3rem 0;border-bottom:1px solid var(--border)}
+.plan-list li:last-child{border-bottom:none}
+.plan-note{font-size:.72rem;color:var(--text-dim);margin-top:1rem}
+.custom-block{border:1px solid var(--border);background:var(--surface);padding:1.75rem;margin-bottom:1.5rem}
+.custom-block p{color:var(--text);margin:0 0 1rem}
+.custom-block p:last-child{margin-bottom:0}
+.custom-list{list-style:none;margin:0 0 1rem;padding:0;font-size:.85rem;color:var(--text-dim)}
+.custom-list li{padding:.25rem 0}
+.custom-list li::before{content:"— ";color:var(--accent)}
 </style>
 </head>
 <body>
@@ -535,6 +578,103 @@ footer{
     </div>
     <div class="dino-start" id="dinoStart" aria-hidden="true">TOCÁ O ESPACIO PARA JUGAR</div>
     <div class="dino-over" id="dinoOver" hidden aria-hidden="true">GAME OVER — espacio para reintentar</div>
+  </div>
+</section>
+
+<hr class="rule">
+
+<section id="precios">
+  <p class="prompt"><b>C:\A&amp;C_DIGITAL&gt;</b> <span class="cmd">precios --acceso</span></p>
+
+  <div class="pricing-gate" id="pricingGate">
+    <label class="pricing-gate-label" for="pricingPw">Contraseña</label>
+    <input class="pricing-gate-input" type="password" id="pricingPw" autocomplete="off">
+    <ul class="menu">
+      <li><button class="btn" type="button" id="pricingGateBtn">Ingresar</button></li>
+    </ul>
+    <p class="pricing-gate-error" id="pricingGateError">Contraseña incorrecta.</p>
+  </div>
+
+  <div id="pricingContent">
+    <p class="section-intro">Valores de referencia para consultorios y estudios de uno o pocos profesionales. Se ajustan según el alcance real de cada proyecto.</p>
+
+    <p class="prompt"><b>C:\A&amp;C_DIGITAL&gt;</b> <span class="cmd">automatizaciones</span></p>
+    <div class="pricing-wrap">
+      <table class="pricing">
+        <thead><tr><th>Automatización</th><th>Implementación</th><th>Mensualidad</th></tr></thead>
+        <tbody>
+          <tr>
+            <td class="item">Recordatorios de turno por WhatsApp<small>Envío automático antes de cada turno, para reducir el ausentismo.</small></td>
+            <td class="num">USD 150–300</td>
+            <td class="num">USD 20–40</td>
+          </tr>
+          <tr>
+            <td class="item">Agenda / turnero online<small>El paciente reserva su turno directamente, sin llamar.</small></td>
+            <td class="num">USD 400–800</td>
+            <td class="num">USD 30–60</td>
+          </tr>
+          <tr>
+            <td class="item">Panel de gestión<small>Turnos, pacientes y facturación en un solo lugar.</small></td>
+            <td class="num">USD 600–1200</td>
+            <td class="num">USD 40–80</td>
+          </tr>
+          <tr>
+            <td class="item">Facturación / liquidación con obra social<small>Cálculo automático según las reglas de cada convenio.</small></td>
+            <td class="num">USD 500–1000+</td>
+            <td class="num">USD 40–70</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="prompt"><b>C:\A&amp;C_DIGITAL&gt;</b> <span class="cmd">planes --combinados</span></p>
+    <div class="plans">
+      <div class="plan">
+        <p class="plan-name">BÁSICO</p>
+        <p class="plan-price">USD 50–70<small> /mes</small></p>
+        <ul class="plan-list">
+          <li>Recordatorios de turno por WhatsApp</li>
+          <li>Agenda / turnero online</li>
+        </ul>
+        <p class="plan-note">Implementación: USD 500–1000 (única vez)</p>
+      </div>
+      <div class="plan plan-pro">
+        <p class="plan-name">PRO</p>
+        <p class="plan-price">USD 90–120<small> /mes</small></p>
+        <ul class="plan-list">
+          <li>Recordatorios de turno por WhatsApp</li>
+          <li>Agenda / turnero online</li>
+          <li>Panel de gestión</li>
+        </ul>
+        <p class="plan-note">Implementación: USD 900–1800 (única vez)</p>
+      </div>
+      <div class="plan">
+        <p class="plan-name">A MEDIDA</p>
+        <p class="plan-price">A convenir</p>
+        <ul class="plan-list">
+          <li>Combinación de las anteriores</li>
+          <li>+ integraciones específicas del negocio</li>
+        </ul>
+        <p class="plan-note">Se cotiza según el alcance real</p>
+      </div>
+    </div>
+
+    <p class="prompt"><b>C:\A&amp;C_DIGITAL&gt;</b> <span class="cmd">proyectos --a-convenir</span></p>
+    <div class="custom-block">
+      <p>Proyectos más grandes o con reglas propias del negocio no entran en una tabla fija — se releva y se cotiza según el caso.</p>
+      <ul class="custom-list">
+        <li>Liquidación automática entre varios profesionales o socios</li>
+        <li>Integraciones con sistemas ya existentes (obra social, banco, ERP)</li>
+        <li>Apps o portales con lógica particular fuera del menú estándar</li>
+        <li>Migración de datos históricos (planillas anteriores, otros sistemas)</li>
+        <li>Soporte prioritario / SLA específico</li>
+      </ul>
+    </div>
+
+    <ul class="menu">
+      <li><a class="btn" href="https://wa.me/5493413622332?text=Hola%2C%20vi%20la%20p%C3%A1gina%20de%20A%26C_Digital%20y%20quiero%20consultar%20por%20precios.">[1] WHATSAPP</a></li>
+      <li><a class="btn" href="mailto:AyCdigital2026@gmail.com?subject=Consulta%20por%20precios">[2] EMAIL</a></li>
+    </ul>
   </div>
 </section>
 
@@ -886,6 +1026,38 @@ var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-moti
     requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);
+})();
+
+(function () {
+  var PASS = "simplificatutrabajo";
+  var gate = document.getElementById("pricingGate");
+  var content = document.getElementById("pricingContent");
+  var input = document.getElementById("pricingPw");
+  var btn = document.getElementById("pricingGateBtn");
+  var err = document.getElementById("pricingGateError");
+  if (!gate || !content || !input || !btn) return;
+
+  function tryUnlock() {
+    if (input.value === PASS) {
+      gate.style.display = "none";
+      content.style.display = "block";
+      try { sessionStorage.setItem("acd_precios_ok", "1"); } catch (e) {}
+    } else {
+      err.classList.add("show");
+      input.value = "";
+      input.focus();
+    }
+  }
+
+  btn.addEventListener("click", tryUnlock);
+  input.addEventListener("keypress", function (e) { if (e.key === "Enter") tryUnlock(); });
+
+  try {
+    if (sessionStorage.getItem("acd_precios_ok") === "1") {
+      gate.style.display = "none";
+      content.style.display = "block";
+    }
+  } catch (e) {}
 })();
 </script>
 
