@@ -168,14 +168,17 @@ h1{
   color:var(--bg);
   border-color:var(--accent);
   font-weight:600;
+  font-size:1rem;
+  padding:.85em 1.75em;
+  letter-spacing:.02em;
 }
 #matrixBtn:hover{background:transparent;color:var(--accent)}
 @media (prefers-reduced-motion:no-preference){
   #matrixBtn:not(.is-open){animation:matrixPulse 2.2s ease-in-out infinite}
 }
 @keyframes matrixPulse{
-  0%,100%{box-shadow:0 0 0 0 rgba(67,232,129,.55)}
-  50%{box-shadow:0 0 0 9px rgba(67,232,129,0)}
+  0%,100%{box-shadow:0 0 0 0 rgba(67,232,129,.55);transform:scale(1)}
+  50%{box-shadow:0 0 0 10px rgba(67,232,129,0);transform:scale(1.035)}
 }
 h2{
   font-size:1rem;
